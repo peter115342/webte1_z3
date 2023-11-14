@@ -1,16 +1,34 @@
 <template>
-  <GraphPage msg="Welcome to Your Vue.js App"/>
+  <div>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary bg-primary bg-gradient mt-0 navbar-fixed-top">
+      <div class="container-fluid">
+        <router-link to="/" class="navbar-brand">Graphs</router-link>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <router-link to="/" class="nav-link" aria-current="page">Grades</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/active-graph" class="nav-link">Active Graph</router-link>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
+    <router-view class="main_viewport"></router-view>
+  </div>
 </template>
 
 <script>
-import GraphPage from './components/GraphPage.vue'
+
 
 export default {
   name: 'App',
-  components: {
-    GraphPage
-  }
+  
 }
 </script>
 
@@ -19,6 +37,7 @@ export default {
 @import url('https://fonts.googleapis.com/css?family=Quicksand&display=swap');
 * {
   font-family: 'Muli', sans-serif;
+
 }
 .navbar.bg-primary{
   background-color: rgb(122, 65, 162) !important;
@@ -36,6 +55,15 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #1f2933;
+  background-color: #e9ebee;
+}
+.main_viewport{
+  max-width: 1200px;
+  position: relative;
+  margin: 0 auto;
+}
+.router-link {
+  cursor: pointer;
 }
 </style>

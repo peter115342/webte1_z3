@@ -3,6 +3,23 @@ import App from './App.vue'
 import "bootstrap/dist/css/bootstrap.css"
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import bootstrap from "bootstrap/dist/js/bootstrap.js"
-import 'assets/styles/style.css'
-createApp(App).use(bootstrap).mount('#app')
+import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+
+import { createRouter, createWebHistory } from 'vue-router';
+import GraphPage from './components/GraphPage.vue';
+import LiveGraph from './components/LiveGraph.vue';
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: GraphPage },
+    { path: '/live-graph', component: LiveGraph },
+  ],
+});
+
+const app = createApp(App);
+
+app.use(bootstrap).use(router);
+
+app.mount('#app');
