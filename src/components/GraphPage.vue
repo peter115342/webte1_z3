@@ -2,17 +2,14 @@
   <div class="main_container">
     <div class="graph_container">
       <div>
-        <!-- Bar chart canvas -->
         <canvas ref="chartCanvas" width="500" height="500"></canvas>
       </div>
       <div class="pie-chart-grid">
-        <!-- Pie charts -->
         <div v-for="(rokData, index) in pieChartData" :key="index">
           <canvas :id="'pie-chart-container-' + index" width="300" height="300"></canvas>
         </div>
       </div>
       <div>
-        <!-- Line chart canvas -->
         <canvas ref="lineChartCanvas" width="400" height="400"></canvas>
       </div>
     </div>
@@ -150,7 +147,7 @@ export default {
         },
       },
       datalabels: {
-        display: false, // Hide data labels inside the pie chart
+        display: false,
       },
     },
   };
@@ -463,8 +460,6 @@ drawCharts() {
 .graph_container {
   margin-top: 35px;
   margin: 30px;
-  width: 1000px;
-  min-width: 1000px;
   max-width: 1000px;
   position: relative;
   margin: 0 auto;
@@ -473,7 +468,6 @@ drawCharts() {
 .pie-chart-grid {
   gap: 20px;
   max-width: 1000px;
-  min-width: fit-content;
   position: relative;
   margin: 0 auto;
   padding-bottom: 75px;

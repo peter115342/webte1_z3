@@ -12,7 +12,7 @@
               <router-link to="/" class="nav-link" aria-current="page">Grades</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/active-graph" class="nav-link">Active Graph</router-link>
+              <router-link to="/live-graph" class="nav-link">Live Graph</router-link>
             </li>
           </ul>
         </div>
@@ -28,7 +28,7 @@
 
 export default {
   name: 'App',
-  
+
 }
 </script>
 
