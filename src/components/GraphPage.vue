@@ -3,17 +3,17 @@
     <div class="graph_container">
       <div>
         <!-- Bar chart canvas -->
-        <canvas ref="chartCanvas" width="400" height="400"></canvas>
+        <canvas ref="chartCanvas" width="500" height="500"></canvas>
       </div>
       <div class="pie-chart-grid">
         <!-- Pie charts -->
         <div v-for="(rokData, index) in pieChartData" :key="index">
-          <canvas :id="'pie-chart-container-' + index" width="200" height="200"></canvas>
+          <canvas :id="'pie-chart-container-' + index" width="300" height="300"></canvas>
         </div>
       </div>
       <div>
         <!-- Line chart canvas -->
-        <canvas ref="lineChartCanvas" width="400" height="200"></canvas>
+        <canvas ref="lineChartCanvas" width="400" height="400"></canvas>
       </div>
     </div>
   </div>
@@ -22,6 +22,8 @@
 
 <script>
 import Chart from "chart.js/auto";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
 
 export default {
   name: "GraphPage",
@@ -82,46 +84,92 @@ export default {
     },
 
     drawPieChart(canvasId, data, rok) {
-      const chartData = {
-        labels: Object.keys(data),
-        datasets: [
-          {
-            data: Object.values(data),
-            backgroundColor: Object.keys(data).map(
-              () => `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255}, 0.55)`
-            ),
-            borderColor: Object.keys(data).map(
-              () => `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255}, 1)`
-            ),
-            borderWidth: 1,
-          },
-        ],
-      };
+  const values = Object.values(data);
+  const total = values.reduce((acc, value) => acc + parseFloat(value), 0); // Use parseFloat to handle string values
 
-      const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          title: {
-            display: true,
-            text: `${rok}`,
-            font: {
-              size: 16,
-            },
+  const chartData = {
+    labels: Object.keys(data),
+    datasets: [
+      {
+        data: values,
+        backgroundColor: Object.keys(data).map(
+          () => `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255}, 0.55)`
+        ),
+        borderColor: Object.keys(data).map(
+          () => `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255}, 1)`
+        ),
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    tooltips: {
+      enabled: true,
+    },
+    plugins: {
+      title: {
+        display: true,
+        text: `${rok}`,
+        font: {
+          size: 16,
+        },
+      },
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          boxWidth: 12,
+          font: {
+            size: 12,
+          },
+          generateLabels: function (chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              const ds = data.datasets[0];
+
+              const percentageData = ds.data.map((value) => {
+                const percentage = total === 0 ? 0 : (parseFloat(value) / total) * 100; // Use parseFloat to handle string values
+                return `${percentage.toPrecision(3)}%`;
+              });
+
+              return data.labels.map((label, i) => ({
+                text: `${label}: ${ds.data[i]} (${percentageData[i]})`,
+                fillStyle: ds.backgroundColor[i],
+                strokeStyle: ds.borderColor[i],
+                lineWidth: ds.borderWidth,
+                hidden: isNaN(ds.data[i]) || chart.getDatasetMeta(0).data[i].hidden,
+                index: i,
+              }));
+            }
+            return [];
           },
         },
-      };
-
-      const ctx = document.getElementById(canvasId).getContext("2d");
-
-      const pieChart = new Chart(ctx, {
-        type: "pie",
-        data: chartData,
-        options: chartOptions,
-      });
-
-      this.pieCharts.push(pieChart);
+      },
+      datalabels: {
+        display: false, // Hide data labels inside the pie chart
+      },
     },
+  };
+
+  const ctx = document.getElementById(canvasId).getContext("2d");
+
+  const pieChart = new Chart(ctx, {
+    type: "pie",
+    data: chartData,
+    options: chartOptions,
+    plugins: [ChartDataLabels],
+  });
+
+  this.pieCharts.push(pieChart);
+},
+
+
+
+
 
     async drawPieCharts() {
       this.pieCharts.forEach((pieChart) => {
@@ -345,7 +393,7 @@ export default {
     plugins: {
       title: {
         display: true,
-        text: 'Amount A through the years:',
+        text: 'Amount of grade A through the years:',
         font: {
           size: 16,
         },
@@ -415,14 +463,14 @@ drawCharts() {
 .graph_container {
   margin-top: 35px;
   margin: 30px;
+  width: 1000px;
+  min-width: 1000px;
   max-width: 1000px;
   position: relative;
   margin: 0 auto;
 }
 
 .pie-chart-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   max-width: 1000px;
   min-width: fit-content;
@@ -435,7 +483,6 @@ drawCharts() {
 @media (max-width: 800px) {
   .pie-chart-grid {
     grid-template-columns: 1fr;
-    max-width: 950px;
   }
 }
 
