@@ -66,4 +66,13 @@ export default {
 .router-link {
   cursor: pointer;
 }
+.main_container{
+  position: relative;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+body {
+  background-color: #e9ebee;
+  padding: 5px;
+}
 </style>

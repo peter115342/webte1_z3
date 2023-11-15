@@ -452,7 +452,10 @@ drawCharts() {
     this.pieCharts.forEach((pieChart) => {
       pieChart.destroy();
     });
+          cancelAnimationFrame(this.animationFrameId);
+
   },
+  
 };
 </script>
 
