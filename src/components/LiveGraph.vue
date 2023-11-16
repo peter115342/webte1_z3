@@ -2,25 +2,47 @@
   <div class="main_container">
     <h1>Live Sine and Cosine Chart</h1>
     <canvas class="live_chart" ref="chartCanvas" width="750" height="400"></canvas>
+    <div class="controls-container">
+      <div class="checkbox-container">
+        <label>
+          <input type="checkbox" v-model="checkboxSine"> Hide Sine
+        </label>
+      </div>
+      <div class="checkbox-container">
+        <label>
+          <input type="checkbox" v-model="checkboxCosine"> Hide Cosine
+        </label>
+      </div>
+      <RangeSlider :min="1" :max="10"  @amplitudeChange="updateAmplitude" :amplitude="amplitudeSize"></RangeSlider>
+    </div>
   </div>
 </template>
 
 <script>
 import Chart from 'chart.js/auto';
+import ChartZoom from 'chartjs-plugin-zoom';
+import RangeSlider from './RangeSlider';
 
+Chart.register(ChartZoom);
 export default {
+  components: {
+    RangeSlider,
+  },
   data() {
     return {
       chart: null,
       data: [],
       eventSource: null,
-      animationTimeoutId: null,
+      checkboxSine: false,
+      checkboxCosine: false,
+      amplitudeSize: 1,
     };
   },
   mounted() {
     this.$nextTick(() => {
       this.initializeEmptyChart();
       this.fetchData();
+      setInterval(this.fetchData, 1000);
     });
   },
   methods: {
@@ -54,6 +76,23 @@ export default {
               beginAtZero: true,
             },
           },
+          plugins: {
+            zoom: {
+              pan: {
+                enabled: true,
+                mode: 'xy',
+              },
+              zoom: {
+                wheel: {
+                  enabled: true,
+                },
+                pinch: {
+                  enabled: true,
+                },
+                mode: 'xy',
+              },
+            },
+          },
         },
       });
     },
@@ -76,58 +115,39 @@ export default {
       };
 
       const updateChart = (data) => {
-        // Update chart data
         this.chart.data.labels.push(data.x);
-        this.chart.data.datasets[0].data.push(parseFloat(data.y1));
-        this.chart.data.datasets[1].data.push(parseFloat(data.y2));
-
-        const maxDataPoints = 50;
-        if (this.chart.data.labels.length > maxDataPoints) {
-          this.chart.data.labels.shift();
-          this.chart.data.datasets[0].data.shift();
-          this.chart.data.datasets[1].data.shift();
+        if (!this.checkboxSine) {
+          this.chart.data.datasets[0].data.push(parseFloat(data.y1) * this.amplitudeSize);
         }
 
-        // Update the chart without recursion
-        this.chart.update();
-      };
-
-      const animateChartUpdate = async () => {
-        // Update the chart and wait for a short delay before the next iteration
-        if (this.data) {
-          updateChart(this.data);
+        if (!this.checkboxCosine) {
+          this.chart.data.datasets[1].data.push(parseFloat(data.y2) * this.amplitudeSize);
         }
-        this.animationTimeoutId = setTimeout(() => {
-          animateChartUpdate();
-        }, 16); // Adjust the delay as needed
       };
 
       const eventListener = (event) => {
-        console.log('Raw data:', event.data);
         const data = parseResponse(event.data);
-        console.log('Parsed data:', data);
         if (data) {
           this.data = data;
+          updateChart(this.data);
+
         }
       };
 
       this.eventSource = new EventSource(apiUrl);
       this.eventSource.addEventListener('message', eventListener);
-
-      // Start the animation loop
-      animateChartUpdate();
     },
     beforeUnmount() {
       if (this.eventSource) {
         this.eventSource.close();
-        
       }
-      // Clear the timeout when the component is unmounted
-      clearTimeout(this.animationTimeoutId);
-      cancelAnimationFrame(this.animationFrameId);
+    },
+    updateAmplitude(value) {
+      this.amplitudeSize = value;
     },
   },
 };
+
 </script>
 
 <style scoped>
@@ -137,5 +157,16 @@ export default {
 }
 .live_chart {
   margin: 15px;
+}
+.controls-container {
+  display: flex;
+  flex-direction: row;
+  margin: 0 auto;
+  position: relative;
+  width: 500px;
+}
+.slider_container {
+  display: flex;
+  flex-direction: column;
 }
 </style>

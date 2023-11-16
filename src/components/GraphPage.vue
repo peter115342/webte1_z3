@@ -407,6 +407,7 @@ export default {
 
 
 drawCharts() {
+
   const screenWidth = window.innerWidth;
   if (this.$refs.chartCanvas && this.$refs.chartCanvas.getContext) {
     const ctx = this.$refs.chartCanvas.getContext("2d");
@@ -417,8 +418,10 @@ drawCharts() {
 
     if (screenWidth <= 800) {
       this.plotHorizontalBarChart(ctx);
+
     } else {
       this.plotBarChart(ctx);
+
     }
   }
 
@@ -455,7 +458,7 @@ drawCharts() {
           cancelAnimationFrame(this.animationFrameId);
 
   },
-  
+
 };
 </script>
 

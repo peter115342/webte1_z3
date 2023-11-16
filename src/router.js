@@ -8,8 +8,13 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
+      path: '',
+      redirect: '/results'
+    },
+    {
       path: '/',
       redirect: '/results'
+      
     },
     {
       path: '/results',

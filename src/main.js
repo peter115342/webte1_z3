@@ -11,13 +11,12 @@ import GraphPage from './components/GraphPage.vue';
 import LiveGraph from './components/LiveGraph.vue';
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(process.env.NODE_ENV === "production" ? "/~xmuzslay/becnkhchag" : "/"),
   routes: [
-    { path: '/', component: GraphPage },
+    { path: '/results', component: GraphPage },
     { path: '/live-graph', component: LiveGraph },
   ],
 });
-
 const app = createApp(App);
 
 app.use(bootstrap).use(router);
