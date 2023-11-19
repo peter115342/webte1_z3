@@ -11,9 +11,10 @@ import GraphPage from './components/GraphPage.vue';
 import LiveGraph from './components/LiveGraph.vue';
 
 const router = createRouter({
-  history: createWebHistory(process.env.NODE_ENV === "production" ? "/~xmuzslay/becnkhchag" : "/"),
+  history: createWebHistory(process.env.NODE_ENV === "production" ? "/~xmuzslay/becnkhchag/" : "/"),
   routes: [
-    { path: '/results', component: GraphPage },
+    { path: '/', redirect: '/graph-page' },
+    { path: '/graph-page', component: GraphPage },
     { path: '/live-graph', component: LiveGraph },
   ],
 });

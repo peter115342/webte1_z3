@@ -8,17 +8,12 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: '',
-      redirect: '/results'
-    },
-    {
       path: '/',
-      redirect: '/results'
-      
+      redirect: '/graph-page'
     },
     {
-      path: '/results',
-      name: 'Results',
+      path: '/graph-page',
+      name: 'GraphPage',
       component: GraphPage
     },
     {

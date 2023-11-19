@@ -58,7 +58,6 @@ export default {
       this.updateThumbPosition();
     });
 
-    // Calculate on load
     this.$nextTick(() => {
       this.updateThumbPosition();
     });
@@ -76,6 +75,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .range-div {
   position: relative;

@@ -1,5 +1,6 @@
 <template>
   <div class="main_container">
+    <div v-if="loading" class="loading">Loading...</div>
     <div class="graph_container">
       <div>
         <canvas ref="chartCanvas" width="500" height="500"></canvas>
@@ -13,6 +14,8 @@
         <canvas ref="lineChartCanvas" width="400" height="400"></canvas>
       </div>
     </div>
+    <p>(Please refresh the page if the graphs are not displayed correctly)</p>
+
   </div>
 </template>
 
@@ -21,8 +24,8 @@
 import Chart from "chart.js/auto";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-
 export default {
+
   name: "GraphPage",
   data() {
     return {
@@ -30,6 +33,11 @@ export default {
       chartCreated: false,
       chart: null,
       pieCharts: [],
+      shouldRedrawCharts: true,
+      hasCrossedBreakpoint: false,
+      lineChartDrawn: false,
+      pieChartsDrawn: false,
+      loading: false,
     };
   },
 
@@ -44,13 +52,14 @@ export default {
 
   methods: {
     async fetchAndParseXML() {
-      try {
-        const xmlFilePath = "/z03.xml";
-        const response = await fetch(xmlFilePath);
-        const xmlString = await response.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-
+  try {
+    const publicPath = process.env.NODE_ENV === "production" ? "/~xmuzslay/becnkhchag/" : "/";
+    const xmlFilePath = publicPath + "z03.xml";
+    
+    const response = await fetch(xmlFilePath);
+    const xmlString = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
         const zaznamElements = xmlDoc.querySelectorAll("zaznam");
         const parsedData = [];
 
@@ -404,46 +413,84 @@ export default {
     options: chartOptions,
   });
 },
+async delay(ms) {
+  this.loading = true;
 
+  window.removeEventListener('resize', this.handleResize);
 
-drawCharts() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      window.addEventListener('resize', this.handleResize);
+      
+      this.loading = false;
+      resolve();
+    }, ms);
+  });
+},
 
-  const screenWidth = window.innerWidth;
-  if (this.$refs.chartCanvas && this.$refs.chartCanvas.getContext) {
-    const ctx = this.$refs.chartCanvas.getContext("2d");
-
-    if (this.chartCreated && this.chart) {
-      this.chart.destroy();
-    }
-
-    if (screenWidth <= 800) {
-      this.plotHorizontalBarChart(ctx);
-
-    } else {
-      this.plotBarChart(ctx);
-
-    }
+async drawCharts() {
+  if (this.chartCreated && this.chart) {
+    this.chart.destroy();
   }
 
-  this.drawPieCharts();
+    this.loading = true;
+    await this.delay(750);
+    this.loading = false;
 
-  this.plotLineChart(this.$refs.lineChartCanvas.getContext("2d"));
+  
+    const screenWidth = window.innerWidth;
+
+    if (this.$refs.chartCanvas && this.$refs.chartCanvas.getContext) {
+      const ctx = this.$refs.chartCanvas.getContext("2d");
+
+      if (screenWidth <= 800) {
+        this.plotHorizontalBarChart(ctx);
+        
+      } else {
+        this.plotBarChart(ctx);
+      }
+      if (!this.pieChartsDrawn) {
+      this.pieChartsDrawn = true;
+      this.drawPieCharts();
+      }
+      if (!this.lineChartDrawn) {
+        this.plotLineChart(this.$refs.lineChartCanvas.getContext("2d"));
+        this.lineChartDrawn = true;
+      }
+      this.loading = true;
+    await this.delay(750);
+    this.loading = false;
+    }
 },
 
 
 
+handleResize() {
+  const screenWidth = window.innerWidth;
+  const isMobile = screenWidth <= 800;
 
-    handleResize() {
-  this.drawCharts();
+  if (this.shouldRedrawCharts && this.chartCreated   && (isMobile !== this.hasCrossedBreakpoint)) {
+    this.shouldRedrawCharts = false;
+    this.hasCrossedBreakpoint = isMobile;
+    this.delay(1500);
+    this.drawCharts();
+    
+  }
+
+  if (!isMobile) {
+    this.shouldRedrawCharts = true;
+  }
 },
-
 
   },
 
   mounted() {
-    //window.addEventListener("resize", this.handleResize);
+    window.addEventListener("resize", this.handleResize);
     this.fetchAndParseXML();
     this.handleResize();
+    this.handleResize = () => {
+  };
+  window.addEventListener('resize', this.handleResize);
   },
 
   beforeUnmount() {
